@@ -7,8 +7,8 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 
 public class BaseTest {
-    protected static final String KEY = "72ed4c1a43b015a85a4b62dbee8e5fd5";
-    protected static final String TOKEN = "6e67825f9598b4012b0755e7af1317c410a87303353bb7b5622afe2815645525";
+    protected static final String KEY = "";
+    protected static final String TOKEN = "";
     protected final String BASE_URL = "https://api.trello.com/1/";
     protected final String ORGANIZATION = "organizations";
     protected final String BOARDS = "boards";
