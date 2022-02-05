@@ -1,7 +1,6 @@
 package negativeTests;
 
 import base.BaseTest;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -19,13 +18,12 @@ public class TrelloNegative extends BaseTest {
     }
 
     @Test
-    public void createCheckistWithIntInName() {
+    public void createBoardWithIntInName() {
         given()
                 .spec(reqspec)
                 .queryParam("name", 1)
-                .queryParam("pos", "pos")
                 .when()
-                .post(BASE_URL + CHECKLISTS)
+                .post(BASE_URL + BOARDS)
                 .then()
                 .statusCode(400);
     }

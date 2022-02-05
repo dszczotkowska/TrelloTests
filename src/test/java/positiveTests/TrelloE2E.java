@@ -8,6 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -39,23 +41,27 @@ public class TrelloE2E extends BaseTest {
 
     }
 
-    private static Stream<Arguments> createChecklists() {
+    private static Stream<Arguments> createChecklistsOnCard() {
         return Stream.of(
-                Arguments.of("Checklist1", 4),
-                Arguments.of("Checklist2", 2),
-                Arguments.of("Checklist3", 3),
-                Arguments.of("Checklist4", 1)
+                Arguments.of("Checklist1", "4"),
+                Arguments.of("Checklist2", "2"),
+                Arguments.of("Checklist3", "3"),
+                Arguments.of("Checklist4", "1")
         );
     }
 
     @Test
     @Order(1)
     public void createOrg() {
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("displayName", fakeDisplayName);
+        queryParams.put("desc", fakeDesc);
+        queryParams.put("website", fakeWeb);
+
         Response response = given()
                 .spec(reqspec)
-                .queryParam("displayName", fakeDisplayName)
-                .queryParam("desc", fakeDesc)
-                .queryParam("website", fakeWeb)
+                .queryParams(queryParams)
                 .when()
                 .post(BASE_URL + ORGANIZATION)
                 .then()
@@ -80,12 +86,16 @@ public class TrelloE2E extends BaseTest {
     @Test
     @Order(2)
     public void createBoard() {
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("name", fakeBoardName);
+        queryParams.put("desc", fakeDesc);
+        queryParams.put("idOrganization", orgId);
+
         Response response = given()
                 .spec(reqspec)
-                .queryParam("name", fakeBoardName)
-                .queryParam("desc", fakeDesc)
+                .queryParams(queryParams)
                 .queryParam("defaultLists", false)
-                .queryParam("idOrganization", orgId)
                 .when()
                 .post(BASE_URL + BOARDS)
                 .then()
@@ -105,10 +115,13 @@ public class TrelloE2E extends BaseTest {
     @Order(3)
     public void createFirstList() {
 
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("name", fakeListname);
+        queryParams.put("idBoard", boardId);
+
         Response response = given()
                 .spec(reqspec)
-                .queryParam("name", fakeListname)
-                .queryParam("idBoard", boardId)
+                .queryParams(queryParams)
                 .when()
                 .post(BASE_URL + LISTS)
                 .then()
@@ -126,10 +139,13 @@ public class TrelloE2E extends BaseTest {
     @Order(4)
     public void createSecondList() {
 
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("name", fakeListname);
+        queryParams.put("idBoard", boardId);
+
         Response response = given()
                 .spec(reqspec)
-                .queryParam("name", fakeListname)
-                .queryParam("idBoard", boardId)
+                .queryParams(queryParams)
                 .when()
                 .post(BASE_URL + LISTS)
                 .then()
@@ -147,12 +163,16 @@ public class TrelloE2E extends BaseTest {
     @Test
     @Order(5)
     public void createCard() {
+
         fakeCardName = faker.harryPotter().spell();
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("name", fakeCardName);
+        queryParams.put("idList", firstListId);
 
         Response response = given()
                 .spec(reqspec)
-                .queryParam("name", fakeCardName)
-                .queryParam("idList", firstListId)
+                .queryParams(queryParams)
                 .when()
                 .post(BASE_URL + CARDS)
                 .then()
@@ -189,15 +209,20 @@ public class TrelloE2E extends BaseTest {
     }
 
     @ParameterizedTest
-    @MethodSource("createChecklists")
+    @MethodSource("createChecklistsOnCard")
     @Order(7)
-    public void addChecklists(String name, int pos) {
+    public void addChecklistsOnCard(String name, String pos) {
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("name", name);
+        queryParams.put("pos", pos);
+
         Response response = given()
                 .spec(reqspec)
-                .queryParam("name", name)
-                .queryParam("pos", pos)
+                .pathParam("id", cardId)
+                .queryParams(queryParams)
                 .when()
-                .post(BASE_URL + CHECKLISTS)
+                .post(BASE_URL + CARDS + "/{id}/checklists")
                 .then()
                 .statusCode(200)
                 .extract()
